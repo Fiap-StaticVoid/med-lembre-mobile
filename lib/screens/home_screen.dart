@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -84,32 +83,46 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildReminderList() {
-    return Consumer<RemindersModel>(
-      builder: (context, remindersModel, child) {
-        var reminders = remindersModel.activeReminders;
-        return ListView.builder(
-          itemCount: reminders.length,
-          itemBuilder: (context, index) {
-            var reminder = reminders[index];
-            return ListTile(
-              leading: Text(reminder.emoji, style: TextStyle(fontSize: 24)),
-              title: Text(reminder.title),
-              subtitle: Text(_calculateTimeUntilReminder(reminder)),
-              onTap: () => _showReminderDetails(reminder),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(icon: Icon(Icons.edit), onPressed: () => _editReminder(reminder)),
-                  IconButton(icon: Icon(Icons.delete), onPressed: () => _deleteReminder(reminder.id)),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+ Widget _buildReminderList() {
+  return Consumer<RemindersModel>(
+    builder: (context, remindersModel, child) {
+      var reminders = remindersModel.activeReminders;
+      return ListView.builder(
+        itemCount: reminders.length,
+        itemBuilder: (context, index) {
+          var reminder = reminders[index];
+          return ListTile(
+            leading: Text(reminder.emoji, style: TextStyle(fontSize: 24)),
+            title: Text(reminder.title),
+            subtitle: Text(_calculateTimeUntilReminder(reminder)),
+            onTap: () => _showReminderDetails(reminder),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.check_circle_outline),
+                  onPressed: () => _markAsCompleted(reminder.id),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _editReminder(reminder),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _deleteReminder(reminder.id),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+void _markAsCompleted(String reminderId) {
+  Provider.of<RemindersModel>(context, listen: false).markAsCompleted(reminderId);
+}
 
   Widget _buildHistoryPage() {
     return Consumer<RemindersModel>(
