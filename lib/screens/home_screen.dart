@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medlembre/services/lembrete_service.dart';
 import 'package:provider/provider.dart';
 import 'package:medlembre/models/reminders_model.dart';
 import 'package:medlembre/models/reminder.dart';
@@ -87,6 +88,20 @@ class _HomeScreenState extends State<HomeScreen> {
   return Consumer<RemindersModel>(
     builder: (context, remindersModel, child) {
       var reminders = remindersModel.activeReminders;
+      var _lembrete = criarLembrete(
+        Lembrete(
+          "10", 
+          "consulta",
+          "21:10:02",
+          2,
+          "diario",
+          5,
+          "mensal",
+          false
+        )
+      );
+
+      var lembretes = listarLembretes();
       return ListView.builder(
         itemCount: reminders.length,
         itemBuilder: (context, index) {
