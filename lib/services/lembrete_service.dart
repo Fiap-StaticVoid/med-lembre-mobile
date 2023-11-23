@@ -7,7 +7,7 @@ Recorrencia recorrenciaFromString(String text) {
 }
 
 String recorrenciaToString(Recorrencia rec) {
-  rec.name
+  return rec.name
 }
 
 class Lembrete {
