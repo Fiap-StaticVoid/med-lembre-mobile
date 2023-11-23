@@ -7,11 +7,8 @@ class RequestControlelr {
   RequestControlelr(this.url_base);
 
   Future<Map<String,dynamic>> post(String route, Map<String,dynamic> data) async {
-
     var completeRoute = Uri.http(url_base, route);
-  
-    var response = await http.post(completeRoute,headers: {"Content-Type":"application/json"}, body: jsonEncode(data));
-    print(response.body);
+    var response = await http.post(completeRoute, headers: {"Content-Type":"application/json"}, body: jsonEncode(data));
     return jsonDecode(response.body) as Map<String,dynamic>;
   }
 
@@ -26,18 +23,15 @@ class RequestControlelr {
 
   Future<int> delete(String route, String id) async {
     route += "/${id}";
-
     var completeRoute = Uri.http(url_base, route);
-    var response = await http.get(completeRoute);
+    var response = await http.delete(completeRoute);
     return response.statusCode;
   }
 
-  Future<Map<String,dynamic>> patch(String route, String? id, Map<String,dynamic> data) async {
-    if (id != null) {
-      route += "/${id}";
-    }
+  Future<Map<String,dynamic>> patch(String route, String id, Map<String,dynamic> data) async {
+    route += "/${id}";
     var completeRoute = Uri.http(url_base, route);
-   var response = await http.post(completeRoute, body: data);
+    var response = await http.patch(completeRoute, headers: {"Content-Type":"application/json"}, body: jsonEncode(data));
     return jsonDecode(response.body) as Map<String,dynamic>;
   }
 }
