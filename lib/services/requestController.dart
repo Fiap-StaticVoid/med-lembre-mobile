@@ -23,7 +23,7 @@ class RequestController {
   }
 
   Future<int> delete(String route, String id) async {
-    route += "/$id";
+    route += "/${id}";
     var completeRoute = Uri.http(urlBase, route);
     var response = await http.delete(completeRoute);
     return response.statusCode;
@@ -31,7 +31,7 @@ class RequestController {
 
   Future<Map<String, dynamic>> patch(
       String route, String id, Map<String, dynamic> data) async {
-    route += "/$id";
+    route += "/${id}";
     var completeRoute = Uri.http(urlBase, route);
     var response = await http.patch(completeRoute,
         headers: {"Content-Type": "application/json"}, body: jsonEncode(data));

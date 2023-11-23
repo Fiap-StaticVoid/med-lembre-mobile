@@ -15,9 +15,9 @@ class Lembrete {
   String titulo;
   String horaInicio;
   int intervalo;
-  String intervaloTipo;
+  Recorrencia intervaloTipo;
   int duracao;
-  String duracaoTipo;
+  Recorrencia duracaoTipo;
   bool concluido;
 
   Lembrete(
@@ -36,9 +36,9 @@ class Lembrete {
         titulo = data["titulo"] as String,
         horaInicio = data["horaInicio"] as String,
         intervalo = data["intervalo"] as int,
-        intervaloTipo = data["intervaloTipo"] as String,
+        intervaloTipo = recorrenciaFromString(data["intervaloTipo"] as String),
         duracao = data["duracao"] as int,
-        duracaoTipo = data["duracaoTipo"] as String,
+        duracaoTipo = recorrenciaFromString(data["duracaoTipo"] as String),
         concluido = data["concluido"] as bool;
 
   Map<String, dynamic> tojSON() {
@@ -46,12 +46,19 @@ class Lembrete {
       "titulo": titulo,
       "horaInicio": horaInicio,
       "intervalo": intervalo,
-      "intervaloTipo": intervaloTipo,
+      "intervaloTipo": recorrenciaToString(intervaloTipo),
       "duracao": duracao,
-      "duracaoTipo": duracaoTipo,
+      "duracaoTipo": recorrenciaToString(duracaoTipo),
       "concluido": concluido
     };
   }
+}
+
+Future<Lembrete> criarLembrete(Lembrete lembrete) async {
+  var req = RequestController("127.0.0.1:8000");
+  var data = await req.post("lembretes", lembrete.tojSON());
+  var _lembrete = Lembrete.fromJSON(data);
+  return _lembrete;
 }
 
 Future<List<Lembrete>> listarLembretes() async {
@@ -64,9 +71,15 @@ Future<List<Lembrete>> listarLembretes() async {
   return lembretes;
 }
 
-Future<Lembrete> criarLembrete(Lembrete lembrete) async {
+Future<bool> deletarLembrete(String id) async {
   var req = RequestController("127.0.0.1:8000");
-  var data = await req.post("lembretes", lembrete.tojSON());
+  var status = await req.delete("lembretes", id);
+  return status == 204;
+}
+
+Future<Lembrete> atualizarLembrete(String id, Lembrete lembrete) async {
+  var req = RequestController("127.0.0.1:8000");
+  var data = await req.patch("lembretes", id, lembrete.tojSON());
   var _lembrete = Lembrete.fromJSON(data);
   return _lembrete;
 }
