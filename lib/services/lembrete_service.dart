@@ -2,6 +2,14 @@ import "package:medlembre/services/requestController.dart";
 
 enum Recorrencia { horario, diario, semanal, mensal, anual }
 
+Recorrencia recorrenciaFromString(String text) {
+  return Recorrencia.values.firstWhere((e) => e.name == text)
+}
+
+String recorrenciaToString(Recorrencia rec) {
+  return rec.name;
+}
+
 class Lembrete {
   String? id;
   String titulo;
