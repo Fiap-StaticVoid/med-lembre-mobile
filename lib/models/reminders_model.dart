@@ -19,17 +19,8 @@ class RemindersModel with ChangeNotifier {
 
   // Adiciona um lembrete
   Future<void> addReminder(Reminder reminder) async {
-    var response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(reminder.toJson()),
-    );
-    if (response.statusCode == 201) {
-      var responseData = jsonDecode(response.body);
-      reminder.id = responseData['id'];
-      _reminders.add(reminder);
-      notifyListeners();
-    }
+    _reminders.add(reminder);
+    notifyListeners();
   }
 
   // Retorna lembretes ativos

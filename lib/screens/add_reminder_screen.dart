@@ -68,7 +68,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     final lembrete = Lembrete(
       null,
       _titleController.text,
-      _selectedTime.format(context),
+      "${_selectedTime.hour}:${_selectedTime.minute}:00",
       2,
       Recorrencia.diario,
       5,

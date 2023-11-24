@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:medlembre/models/reminders_model.dart';
 import 'package:medlembre/models/reminder.dart';
+import 'package:medlembre/services/lembrete_service.dart';
 import 'package:provider/provider.dart';
 import 'add_reminder_screen.dart';
 import 'profile_screen.dart';
@@ -21,6 +22,32 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _timer =
         Timer.periodic(Duration(minutes: 1), (Timer t) => _checkReminders());
+    var remindersModel = Provider.of<RemindersModel>(context, listen: false);
+    listarLembretes().then((value) => {
+          value.forEach((element) {
+            var reminder = Reminder(
+              id: element.id?.toString() ?? '',
+              titulo: element.titulo,
+              horaInicio: element.horaInicio,
+              intervalo: element.intervalo,
+              intervaloTipo: element.intervaloTipo.name,
+              duracao: element.duracao,
+              duracaoTipo: element.duracaoTipo.name,
+              concluido: element.concluido,
+              emoji: '☀️',
+              dateTime: DateTime.now(),
+              frequencyType: '',
+              timesPerDay: 0,
+              intervalInHours: 0,
+              intervalInMinutes: 0,
+              description: '',
+              address: '',
+              confirmationCode: '',
+              isCompleted: element.concluido,
+            );
+            remindersModel.addReminder(reminder);
+          })
+        });
   }
 
   @override
