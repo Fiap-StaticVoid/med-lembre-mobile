@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medlembre/services/lembrete_service.dart';
 import 'package:provider/provider.dart';
 import 'package:medlembre/models/reminder.dart';
 import 'package:medlembre/models/reminders_model.dart';
@@ -64,49 +65,17 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   }
 
   void _saveOrUpdateReminder() async {
-    DateTime fullDateTime = DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      _selectedDate.day,
-      _selectedTime.hour,
-      _selectedTime.minute,
+    final lembrete = Lembrete(
+      null,
+      _titleController.text,
+      _selectedTime.format(context),
+      2,
+      Recorrencia.diario,
+      5,
+      Recorrencia.mensal,
+      false,
     );
-
-    final reminder = Reminder(
-      id: widget.existingReminder?.id ?? DateTime.now().toString(),
-      titulo: "consulta", // Substitua pelo título desejado
-      horaInicio: "21:10:02",
-      intervalo: 2,
-      intervaloTipo: "diario",
-      duracao: 5,
-      duracaoTipo: "mensal",
-      concluido: false,
-      dateTime: fullDateTime, // Forneça um valor válido para dateTime
-      emoji: '💧', // Adicione um emoji se desejar
-      frequencyType: 'times_per_day', // Escolha o tipo de frequência desejado
-      timesPerDay: 4, // Defina o número de vezes por dia
-      intervalInHours: 6, // Defina o intervalo em horas
-      intervalInMinutes: 30, // Defina o intervalo em minutos
-      description: '', // Adicione uma descrição se desejar
-      address: '', // Adicione um endereço se desejar
-      confirmationCode: '', // Adicione um código de confirmação se desejar
-      isCompleted: false, // Define se o lembrete está concluído
-    );
-
-    try {
-      if (widget.existingReminder == null) {
-        await Provider.of<RemindersModel>(context, listen: false)
-            .addReminder(reminder);
-      } else {
-        await Provider.of<RemindersModel>(context, listen: false)
-            .updateReminder(reminder);
-      }
-      Navigator.of(context).pop();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar o lembrete: $e')),
-      );
-    }
+    await criarLembrete(lembrete);
   }
 
   @override
