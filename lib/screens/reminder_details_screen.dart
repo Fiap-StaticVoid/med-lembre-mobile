@@ -9,7 +9,6 @@ class ReminderDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // A função isMedicalConsultation é usada para determinar se o código de confirmação deve ser exibido
     bool isConsultation = reminder.isMedicalConsultation();
 
     return Scaffold(
@@ -21,11 +20,26 @@ class ReminderDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Título: ${reminder.title}', style: TextStyle(fontSize: 18)),
-            Text('Data e Hora: ${DateFormat.yMd().add_Hm().format(reminder.dateTime)}', style: TextStyle(fontSize: 18)),
+            Text('Título: ${reminder.titulo}', style: TextStyle(fontSize: 18)),
+            Text(
+                'Data e Hora: ${DateFormat.yMd().add_Hm().format(reminder.dateTime)}',
+                style: TextStyle(fontSize: 18)),
+            Text('Emoji: ${reminder.emoji}', style: TextStyle(fontSize: 18)),
+            Text('Frequência: ${reminder.frequencyType}',
+                style: TextStyle(fontSize: 18)),
+            Text('Vezes por Dia: ${reminder.timesPerDay}',
+                style: TextStyle(fontSize: 18)),
+            Text('Intervalo em Horas: ${reminder.intervalInHours}',
+                style: TextStyle(fontSize: 18)),
+            Text('Intervalo em Minutos: ${reminder.intervalInMinutes}',
+                style: TextStyle(fontSize: 18)),
+            Text('Descrição: ${reminder.description}',
+                style: TextStyle(fontSize: 18)),
+            Text('Endereço: ${reminder.address}',
+                style: TextStyle(fontSize: 18)),
             if (isConsultation && reminder.confirmationCode.isNotEmpty)
-              Text('Código de Confirmação: ${reminder.confirmationCode}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            // Outros detalhes do lembrete podem ser adicionados aqui
+              Text('Código de Confirmação: ${reminder.confirmationCode}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
       ),

@@ -1,4 +1,3 @@
-// widgets/reminder_list_item.dart
 import 'package:flutter/material.dart';
 import 'package:medlembre/models/reminder.dart';
 
@@ -21,8 +20,8 @@ class ReminderListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Text(reminder.emoji, style: TextStyle(fontSize: 24)),
-      title: Text(reminder.title),
-      subtitle: Text('Ativo'),
+      title: Text(reminder.titulo),
+      subtitle: Text('Ativo'), // Você pode querer personalizar este texto
       onTap: onShowDetails,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

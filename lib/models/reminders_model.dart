@@ -1,36 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:medlembre/models/reminder.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'reminder.dart';
 
 class RemindersModel with ChangeNotifier {
-  final List<Reminder> _reminders = [];
+  final String apiUrl = 'http://127.0.0.1:8000/lembretes';
+  List<Reminder> _reminders = [];
+
+  // Carrega os lembretes da API
+  Future<void> loadReminders() async {
+    var response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body) as List;
+      _reminders = data.map((json) => Reminder.fromJson(json)).toList();
+      notifyListeners();
+    }
+  }
+
+  // Adiciona um lembrete
+  Future<void> addReminder(Reminder reminder) async {
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(reminder.toJson()),
+    );
+    if (response.statusCode == 201) {
+      var responseData = jsonDecode(response.body);
+      reminder.id = responseData['id'];
+      _reminders.add(reminder);
+      notifyListeners();
+    }
+  }
 
   // Retorna lembretes ativos
-  List<Reminder> get activeReminders => 
-    _reminders.where((reminder) => !reminder.isCompleted).toList();
+  List<Reminder> get activeReminders =>
+      _reminders.where((reminder) => !reminder.isCompleted).toList();
 
   // Retorna lembretes concluídos
-  List<Reminder> get completedReminders => 
-    _reminders.where((reminder) => reminder.isCompleted).toList();
+  List<Reminder> get completedReminders =>
+      _reminders.where((reminder) => reminder.isCompleted).toList();
 
-  void addReminder(Reminder reminder) {
-    _reminders.add(reminder);
-    notifyListeners();
+  // Atualiza um lembrete
+  Future<void> updateReminder(Reminder reminder) async {
+    var response = await http.patch(
+      Uri.parse('$apiUrl/${reminder.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(reminder.toJson()),
+    );
+    if (response.statusCode == 200) {
+      _reminders[_reminders.indexWhere((r) => r.id == reminder.id)] = reminder;
+      notifyListeners();
+    }
   }
 
   void markAsCompleted(String reminderId) {
-    final reminder = _reminders.firstWhere((r) => r.id == reminderId);
-    reminder.isCompleted = true;
-    notifyListeners();
-  }
-  void deleteReminder(String id) {
-    _reminders.removeWhere((reminder) => reminder.id == id);
-    notifyListeners();
-  }
-  void updateReminder(Reminder updatedReminder) {
-    final index = _reminders.indexWhere((reminder) => reminder.id == updatedReminder.id);
+    final index =
+        _reminders.indexWhere((reminder) => reminder.id == reminderId);
     if (index != -1) {
-      _reminders[index] = updatedReminder;
+      _reminders[index].isCompleted = true;
       notifyListeners();
     }
-}
+  }
+
+  // Remove um lembrete
+  Future<void> deleteReminder(String id) async {
+    var response = await http.delete(Uri.parse('$apiUrl/$id'));
+    if (response.statusCode == 204) {
+      _reminders.removeWhere((r) => r.id == id);
+      notifyListeners();
+    }
+  }
+
+  // Outros métodos conforme necessário...
 }
