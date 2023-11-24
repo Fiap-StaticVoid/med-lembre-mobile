@@ -3,7 +3,7 @@ import "package:medlembre/services/requestController.dart";
 enum Recorrencia { horario, diario, semanal, mensal, anual }
 
 Recorrencia recorrenciaFromString(String text) {
-  return Recorrencia.values.firstWhere((e) => e.name == text)
+  return Recorrencia.values.firstWhere((e) => e.name == text);
 }
 
 String recorrenciaToString(Recorrencia rec) {
@@ -61,7 +61,6 @@ Future<List<Lembrete>> listarLembretes() async {
   for (var i = 0; i < datas.length; i++) {
     lembretes.add(Lembrete.fromJSON(datas[i]));
   }
-  print(lembretes);
   return lembretes;
 }
 
@@ -69,6 +68,5 @@ Future<Lembrete> criarLembrete(Lembrete lembrete) async {
   var req = RequestController("127.0.0.1:8000");
   var data = await req.post("lembretes", lembrete.tojSON());
   var _lembrete = Lembrete.fromJSON(data);
-  print(_lembrete);
   return _lembrete;
 }
