@@ -27,9 +27,11 @@ class Perfil {
         alergiasERestricoes = List<String>.from(data["alergiasERestricoes"]);
 
   Map<String, dynamic> toJSON() {
+    var data =
+        "${dataNascimento.year.toString()}-${dataNascimento.month.toString().padLeft(2, '0')}-${dataNascimento.day.toString().padLeft(2, '0')}";
     return {
       "nome": nome,
-      "dataNascimento": dataNascimento.toIso8601String(),
+      "dataNascimento": data,
       "tipoSanguineo": tipoSanguineo,
       "genero": genero,
       "alergiasERestricoes": alergiasERestricoes,
