@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:medlembre/models/reminders_model.dart';
-import 'package:medlembre/services/lembrete_service.dart';
+import 'package:medlembre/models/registries_model.dart';
+import 'package:medlembre/services/registro_service.dart';
 import 'package:medlembre/models/reminder.dart';
 import 'package:provider/provider.dart';
 
-class AddReminderScreen extends StatefulWidget {
-  final Reminder? existingReminder;
+class AddRegistryScreen extends StatefulWidget {
+  final Reminder? existingRegistry;
 
-  AddReminderScreen({this.existingReminder});
+  AddRegistryScreen({this.existingRegistry});
 
   @override
-  _AddReminderScreenState createState() => _AddReminderScreenState();
+  _AddRegistryScreenState createState() => _AddRegistryScreenState();
 }
 
-class _AddReminderScreenState extends State<AddReminderScreen> {
+class _AddRegistryScreenState extends State<AddRegistryScreen> {
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _observationController = TextEditingController();
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
 
   @override
   void initState() {
     super.initState();
-    if (widget.existingReminder != null) {
-      _titleController.text = widget.existingReminder!.titulo;
-      _selectedDate = widget.existingReminder!.dateTime;
-      _selectedTime = TimeOfDay.fromDateTime(widget.existingReminder!.dateTime);
+    if (widget.existingRegistry != null) {
+      _titleController.text = widget.existingRegistry!.titulo;
+      _selectedDate = widget.existingRegistry!.dateTime;
+      _selectedTime = TimeOfDay.fromDateTime(widget.existingRegistry!.dateTime);
     } else {
       _selectedDate = DateTime.now();
       _selectedTime = TimeOfDay.now();
@@ -58,22 +59,15 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     }
   }
 
-  void _saveOrUpdateReminder() {
-    var remindersModel = Provider.of<RemindersModel>(context, listen: false);
-    var time =
-        "${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}:00";
-    final lembrete = Lembrete(
-      null,
-      _titleController.text,
-      time,
-      2,
-      Recorrencia.diario,
-      5,
-      Recorrencia.mensal,
-      false,
-    );
-    criarLembrete(lembrete).then((value) {
-      remindersModel.loadReminders();
+  void _saveOrUpdateRegistry() async {
+    var registriesModel = Provider.of<RegistriesModel>(context, listen: false);
+    final registro = Registro(
+        null,
+        _titleController.text,
+        DateFormat('yyyy-MM-dd').format(_selectedDate),
+        _observationController.text);
+    await criarRegistro(registro).then((value) {
+      registriesModel.loadRegistries();
       Navigator.of(context).pop();
     });
   }
@@ -82,9 +76,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingReminder == null
-            ? 'Adicionar Lembrete'
-            : 'Editar Lembrete'),
+        title: Text(widget.existingRegistry == null
+            ? 'Adicionar Registro'
+            : 'Editar Registro'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -93,7 +87,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'Título do Lembrete',
+                labelText: 'Título do Registro',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -110,11 +104,19 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               },
             ),
             const SizedBox(height: 16),
+            TextField(
+              controller: _observationController,
+              decoration: const InputDecoration(
+                labelText: 'Observações',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _saveOrUpdateReminder,
+              onPressed: _saveOrUpdateRegistry,
               style: ElevatedButton.styleFrom(primary: Colors.green),
               child: Text(
-                  widget.existingReminder == null ? 'Adicionar' : 'Editar'),
+                  widget.existingRegistry == null ? 'Adicionar' : 'Editar'),
             ),
           ],
         ),

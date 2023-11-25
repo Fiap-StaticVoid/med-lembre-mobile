@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medlembre/models/registries_model.dart';
 import 'package:medlembre/models/reminders_model.dart';
 import 'package:medlembre/models/reminder.dart';
+import 'package:medlembre/screens/add_reminder_screen.dart';
+import 'package:medlembre/screens/add_registry_screen.dart';
 import 'package:medlembre/services/lembrete_service.dart';
+import 'package:medlembre/services/registro_service.dart';
 import 'package:provider/provider.dart';
-import 'add_reminder_screen.dart';
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,40 +23,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _timer =
-        Timer.periodic(Duration(minutes: 1), (Timer t) => _checkReminders());
-    var remindersModel = Provider.of<RemindersModel>(context, listen: false);
-    listarLembretes().then((value) => {
-          value.forEach((element) {
-            var reminder = Reminder(
-              id: element.id?.toString() ?? '',
-              titulo: element.titulo,
-              horaInicio: element.horaInicio,
-              intervalo: element.intervalo,
-              intervaloTipo: element.intervaloTipo.name,
-              duracao: element.duracao,
-              duracaoTipo: element.duracaoTipo.name,
-              concluido: element.concluido,
-              emoji: '☀️',
-              dateTime: DateTime.now(),
-              frequencyType: '',
-              timesPerDay: 0,
-              intervalInHours: 0,
-              intervalInMinutes: 0,
-              description: '',
-              address: '',
-              confirmationCode: '',
-              isCompleted: element.concluido,
-            );
-            remindersModel.addReminder(reminder);
-          })
-        });
+    _timer = Timer.periodic(
+        const Duration(minutes: 1), (Timer t) => _checkReminders());
+    updateReminders();
+    updateRegistries();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  void updateReminders() async {
+    var remindersModel = Provider.of<RemindersModel>(context, listen: false);
+    remindersModel.loadReminders();
+  }
+
+  void updateRegistries() async {
+    var registriesModel = Provider.of<RegistriesModel>(context, listen: false);
+    registriesModel.loadRegistries();
   }
 
   void _checkReminders() {
@@ -66,6 +55,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Widget? getActionButton() {
+    switch (_selectedIndex) {
+      case 0:
+        return FloatingActionButton(
+          onPressed: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => AddReminderScreen())),
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.add),
+        );
+      case 1:
+        return FloatingActionButton(
+          onPressed: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => AddRegistryScreen())),
+          child: const Icon(Icons.add),
+          backgroundColor: Colors.green,
+        );
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,18 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(_getTitleForIndex(_selectedIndex)),
       ),
       body: _getBodyForIndex(_selectedIndex),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton(
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => AddReminderScreen())),
-              child: Icon(Icons.add),
-              backgroundColor: Colors.green,
-            )
-          : null,
+      floatingActionButton: getActionButton(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
           BottomNavigationBarItem(
               icon: Icon(Icons.history), label: 'Histórico'),
@@ -110,13 +113,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getBodyForIndex(int index) {
     switch (index) {
       case 0:
+        setState(() {
+          updateReminders();
+        });
         return _buildReminderList();
       case 1:
-        return _buildHistoryPage();
+        setState(() {
+          updateRegistries();
+        });
+        return _buildRegistryPage();
       case 2:
         return ProfileScreen();
       default:
-        return Center(child: Text('Página não encontrada'));
+        return const Center(child: Text('Página não encontrada'));
     }
   }
 
@@ -129,7 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
           itemBuilder: (context, index) {
             var reminder = reminders[index];
             return ListTile(
-              leading: Text(reminder.emoji, style: TextStyle(fontSize: 24)),
+              leading:
+                  Text(reminder.emoji, style: const TextStyle(fontSize: 24)),
               title: Text(reminder.titulo),
               subtitle: Text(_calculateTimeUntilReminder(reminder)),
               onTap: () => _showReminderDetails(reminder),
@@ -137,15 +147,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.check_circle_outline),
+                    icon: const Icon(Icons.check_circle_outline),
                     onPressed: () => _markAsCompleted(reminder.id),
                   ),
                   IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () => _editReminder(reminder),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () => _deleteReminder(reminder.id),
                   ),
                 ],
@@ -162,19 +172,18 @@ class _HomeScreenState extends State<HomeScreen> {
         .markAsCompleted(reminderId);
   }
 
-  Widget _buildHistoryPage() {
-    return Consumer<RemindersModel>(
-      builder: (context, remindersModel, child) {
-        var reminders = remindersModel.completedReminders;
+  Widget _buildRegistryPage() {
+    return Consumer<RegistriesModel>(
+      builder: (context, registriesModel, child) {
+        var registries = registriesModel.registries;
         return ListView.builder(
-          itemCount: reminders.length,
+          itemCount: registries.length,
           itemBuilder: (context, index) {
-            var reminder = reminders[index];
+            var reminder = registries[index];
             return ListTile(
-              leading: Text(reminder.emoji, style: TextStyle(fontSize: 24)),
+              leading: const Text("☀️", style: TextStyle(fontSize: 24)),
               title: Text(reminder.titulo),
-              subtitle: Text(
-                  'Concluído em: ${DateFormat.yMd().add_Hm().format(reminder.dateTime)}'),
+              subtitle: Text('Concluído em: ${reminder.data}'),
             );
           },
         );
@@ -222,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Fechar'),
+              child: const Text('Fechar'),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:medlembre/services/lembrete_service.dart';
 import 'dart:convert';
 import 'reminder.dart';
 
@@ -9,17 +10,42 @@ class RemindersModel with ChangeNotifier {
 
   // Carrega os lembretes da API
   Future<void> loadReminders() async {
-    var response = await http.get(Uri.parse(apiUrl));
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body) as List;
-      _reminders = data.map((json) => Reminder.fromJson(json)).toList();
-      notifyListeners();
-    }
+    var lembretes = await listarLembretes();
+    clearReminders();
+    lembretes.forEach((element) {
+      var reminder = Reminder(
+        id: element.id?.toString() ?? '',
+        titulo: element.titulo,
+        horaInicio: element.horaInicio,
+        intervalo: element.intervalo,
+        intervaloTipo: element.intervaloTipo.name,
+        duracao: element.duracao,
+        duracaoTipo: element.duracaoTipo.name,
+        concluido: element.concluido,
+        emoji: '☀️',
+        dateTime: DateTime.now(),
+        frequencyType: '',
+        timesPerDay: 0,
+        intervalInHours: 0,
+        intervalInMinutes: 0,
+        description: '',
+        address: '',
+        confirmationCode: '',
+        isCompleted: element.concluido,
+      );
+      _reminders.add(reminder);
+    });
+    notifyListeners();
   }
 
   // Adiciona um lembrete
   Future<void> addReminder(Reminder reminder) async {
     _reminders.add(reminder);
+    notifyListeners();
+  }
+
+  void clearReminders() {
+    _reminders.clear();
     notifyListeners();
   }
 
